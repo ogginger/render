@@ -5,28 +5,44 @@
 define([
 	"file",
 	"promise",
-	"sTemplate"
+	"sTemplate",
+	"validate",
+	"validation"
 ], function(
 	file,
 	promise,
-	sTemplate
+	sTemplate,
+	validate,
+	validation
 ) {
 
   return function( Input ) {
 	var xSnip = this;
-	return promise(function( resolve ) {
+	validate({
+		Validation: validation,
+		Data: Input
+	});
+	
+	return promise(function( resolve, reject ) {
 		xSnip.snip( Input.TemplateType ).then(function( Template ) {
+			console.log("A");
 			file.create({
 				"Name": Input.FileName,
 				"Body": sTemplate({
 					"Template": Template,
 					"Options": Input.Options
 				})
-			}).finally(function() {
+			}).then(function() {
+				console.log("D");
 				resolve();
+			}).catch(function( error ) {
+				console.log( "B" );
+				reject( error );
 			});
+		}).catch(function( error ) {
+			console.log("C");
+			reject( error );
 		});
-		
 	});
   };
 });
